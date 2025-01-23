@@ -25,7 +25,7 @@ func NewMemoryStorage() *MemoryStorage {
 }
 
 // Set sets the state for a user (expiration is ignored)
-func (m *MemoryStorage) Set(userID int64, state string, expiration time.Duration) error {
+func (m *MemoryStorage) Set(userID int64, state string, _ time.Duration) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.store[userID] = state
