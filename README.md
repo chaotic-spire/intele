@@ -99,9 +99,6 @@ The library includes a message collector that helps manage and clean up messages
 especially useful when you need to collect and later remove all messages that were part of an input sequence.
 
 ```go
-// Create a new collector
-inputCollector := collector.New()
-
 // Example of using collector in an input loop
 func handleUserInput(c tele.Context) error {
 inputCollector := collector.New()
