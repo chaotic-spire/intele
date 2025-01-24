@@ -101,49 +101,49 @@ especially useful when you need to collect and later remove all messages that we
 ```go
 // Example of using collector in an input loop
 func handleUserInput(c tele.Context) error {
-inputCollector := collector.New()
+    inputCollector := collector.New()
+    
+    // Send initial message and collect it
+    _ = inputCollector.Send(c,
+        "Please enter your full name:",
+        &tele.ReplyMarkup{...},
+    )
 
-// Send initial message and collect it
-_ = inputCollector.Send(c,
-"Please enter your full name:",
-&tele.ReplyMarkup{...},
-)
+    for {
+        // Wait for user input
+        message, canceled, err := inputManager.Get(context.Background(), c.Sender().ID, 0)
+        if message != nil {
+            inputCollector.Collect(message) // Collect user's message
+        }
 
-for {
-// Wait for user input
-message, canceled, err := inputManager.Get(context.Background(), c.Sender().ID, 0)
-if message != nil {
-inputCollector.Collect(message) // Collect user's message
-}
-
-switch {
-case canceled:
-// Clear all messages except the last one
-_ = inputCollector.Clear(c, collector.ClearOptions{
-IgnoreErrors: true,
-ExcludeLast: true,
-})
-return nil
-case err != nil:
-// Send error message and collect it
-_ = inputCollector.Send(c,
-"Error occurred. Please try again.",
-&tele.ReplyMarkup{...},
-)
-case isValidInput(message.Text):
-// Clear all collected messages
-_ = inputCollector.Clear(c, collector.ClearOptions{
-IgnoreErrors: true,
-})
-return processInput(message.Text)
-default:
-// Send invalid input message and collect it
-_ = inputCollector.Send(c,
-"Invalid input. Please try again.",
-&tele.ReplyMarkup{...},
-)
-}
-}
+        switch {
+        case canceled:
+            // Clear all messages except the last one
+            _ = inputCollector.Clear(c, collector.ClearOptions{
+                IgnoreErrors: true,
+                ExcludeLast: true,
+            })
+            return nil
+        case err != nil:
+            // Send error message and collect it
+            _ = inputCollector.Send(c,
+                "Error occurred. Please try again.",
+                &tele.ReplyMarkup{...},
+            )
+        case isValidInput(message.Text):
+            // Clear all collected messages
+            _ = inputCollector.Clear(c, collector.ClearOptions{
+                IgnoreErrors: true,
+            })
+            return processInput(message.Text)
+        default:
+            // Send invalid input message and collect it
+            _ = inputCollector.Send(c,
+                "Invalid input. Please try again.",
+                &tele.ReplyMarkup{...},
+            )
+        }
+    }
 }
 ```
 
