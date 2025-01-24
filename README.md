@@ -16,6 +16,7 @@ requests in your Telegram bot applications.
 - 💾 Flexible state storage system
 - 🛡️ Thread-safe implementation
 - 🎯 Cancellable input requests
+- 🧹 Message collector for clean input handling
 
 ## Installation
 
@@ -91,6 +92,72 @@ inputManager := intele.NewInputManager(intele.InputOptions{
 Storage: myCustomStorage,
 })
 ```
+
+### Message Collector
+
+The library includes a message collector that helps manage and clean up messages during input operations. This is
+especially useful when you need to collect and later remove all messages that were part of an input sequence.
+
+```go
+// Create a new collector
+inputCollector := collector.New()
+
+// Example of using collector in an input loop
+func handleUserInput(c tele.Context) error {
+inputCollector := collector.New()
+
+// Send initial message and collect it
+_ = inputCollector.Send(c,
+"Please enter your full name:",
+&tele.ReplyMarkup{...},
+)
+
+for {
+// Wait for user input
+message, canceled, err := inputManager.Get(context.Background(), c.Sender().ID, 0)
+if message != nil {
+inputCollector.Collect(message) // Collect user's message
+}
+
+switch {
+case canceled:
+// Clear all messages except the last one
+_ = inputCollector.Clear(c, collector.ClearOptions{
+IgnoreErrors: true,
+ExcludeLast: true,
+})
+return nil
+case err != nil:
+// Send error message and collect it
+_ = inputCollector.Send(c,
+"Error occurred. Please try again.",
+&tele.ReplyMarkup{...},
+)
+case isValidInput(message.Text):
+// Clear all collected messages
+_ = inputCollector.Clear(c, collector.ClearOptions{
+IgnoreErrors: true,
+})
+return processInput(message.Text)
+default:
+// Send invalid input message and collect it
+_ = inputCollector.Send(c,
+"Invalid input. Please try again.",
+&tele.ReplyMarkup{...},
+)
+}
+}
+}
+```
+
+The collector provides the following methods:
+
+- `New()` - Creates a new message collector
+- `Collect(message)` - Adds a message to the collector
+- `Send(context, what, opts...)` - Sends a message and automatically collects it
+- `Clear(context, options)` - Deletes all collected messages with configurable options:
+  - `IgnoreErrors` - Continue deletion even if some messages fail to delete
+  - `ExcludeLast` - Keep the last collected message when clearing
 
 ### Key Methods
 
