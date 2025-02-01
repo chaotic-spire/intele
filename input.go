@@ -18,7 +18,7 @@ const (
 // pendingRequest represents a pending input request from a user
 type pendingRequest struct {
 	mu        sync.Mutex
-	response  *tele.Message // the response message
+	message   *tele.Message // the response message
 	callback  *tele.Callback
 	completed bool // whether the request has been completed
 	canceled  bool // whether the request has been canceled (completed will be true in this case)
@@ -73,7 +73,7 @@ func (h *InputManager) MessageHandler() tele.HandlerFunc {
 
 		// Set response and mark as completed
 		req.mu.Lock()
-		req.response = c.Message()
+		req.message = c.Message()
 		req.completed = true
 		req.mu.Unlock()
 
@@ -114,6 +114,7 @@ func (h *InputManager) CallbackHandler() tele.HandlerFunc {
 				// Set callback and mark as completed
 				req.mu.Lock()
 				req.callback = c.Callback()
+				req.message = c.Message()
 				req.completed = true
 				req.mu.Unlock()
 
@@ -154,13 +155,13 @@ type Response struct {
 
 // Get waits for user input or callback and returns it. If timeout is 0, waits indefinitely.
 // You can pass callback endpoints to handle button presses. If a button with matching unique identifier
-// is pressed, the function will return a Response with Callback field set and Message field as nil.
+// is pressed, the function will return a Response with Callback field set and Message that called the button.
 //
 // NOTE:
 //   - This function is blocking, so make sure to call it in a separate goroutine
 //   - It will return error if the context is canceled or context deadline is exceeded
 //   - It will return ErrTimeout if the timeout is exceeded
-//   - It will return nil error and Response.Canceled=true if input is canceled by Cancel
+//   - It will return nil error and Response.Canceled=true if input canceled by Cancel
 //   - For text messages, Message field will be set and Callback will be nil
 //   - For button callbacks, Message will be nil and Callback will contain the callback data
 func (h *InputManager) Get(ctx context.Context, userID int64, timeout time.Duration, callback ...tele.CallbackEndpoint) (Response, error) {
@@ -193,7 +194,7 @@ func (h *InputManager) Get(ctx context.Context, userID int64, timeout time.Durat
 			if req.completed {
 				canceled := req.canceled
 				response := Response{
-					Message:  req.response,
+					Message:  req.message,
 					Callback: req.callback,
 					Canceled: canceled,
 				}
