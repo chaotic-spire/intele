@@ -1,6 +1,6 @@
 package collector
 
-import tele "gopkg.in/telebot.v3"
+import tele "gopkg.in/telebot.v4"
 
 // MessageCollector is a collector for messages, it may be used to storage messages and delete them all afterward
 type MessageCollector struct {

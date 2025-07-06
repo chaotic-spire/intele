@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/nlypage/intele)](LICENSE)
 
 Intele is a powerful and flexible input management library for Telegram bots built
-with [telebot.v3](https://github.com/tucnak/telebot). It provides a simple and efficient way to handle user input
+with [telebot.v4](https://github.com/tucnak/telebot). It provides a simple and efficient way to handle user input
 requests and button callbacks in your Telegram bot applications.
 
 ## Features
@@ -22,7 +22,7 @@ requests and button callbacks in your Telegram bot applications.
 ## Installation
 
 ```bash
-go get github.com/nlypage/intele
+go get github.com/chaotic-spire/intele
 ```
 
 ## Quick Start
@@ -34,8 +34,8 @@ package main
 
 import (
   "context"
-  "github.com/nlypage/intele"
-  tele "gopkg.in/telebot.v3"
+  "github.com/chaotic-spire/intele"
+  tele "gopkg.in/telebot.v4"
   "log"
   "time"
 )
