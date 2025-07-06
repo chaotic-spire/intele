@@ -2,7 +2,7 @@ package intele
 
 import (
 	"context"
-	"github.com/nlypage/intele/storage"
+	"github.com/chaotic-spire/intele/storage"
 	"strings"
 
 	"sync"
